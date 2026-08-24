@@ -1,4 +1,5 @@
 using JapaneseLearning.User.Infrastructure.Database;
+using JapaneseLearning.User.Infrastructure.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +11,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var connectionString =
+            configuration.GetConnectionString("DefaultConnection");
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
@@ -20,6 +22,10 @@ public static class DependencyInjection
 
         services.AddSingleton<ISqlConnectionFactory>(
             new SqlConnectionFactory(connectionString));
+
+        services.AddHealthChecks()
+            .AddCheck<SqlServerHealthCheck>(
+                "sql-server");
 
         return services;
     }
