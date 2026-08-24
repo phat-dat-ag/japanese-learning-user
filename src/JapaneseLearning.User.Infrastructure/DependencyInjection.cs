@@ -1,3 +1,4 @@
+using JapaneseLearning.User.Infrastructure.Configuration;
 using JapaneseLearning.User.Infrastructure.Database;
 using JapaneseLearning.User.Infrastructure.HealthChecks;
 using Microsoft.Extensions.Configuration;
@@ -11,17 +12,16 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString =
-            configuration.GetConnectionString("DefaultConnection");
+        services
+            .AddOptions<DatabaseOptions>()
+            .Bind(configuration.GetSection(DatabaseOptions.SectionName))
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(
+                    options.ConnectionString),
+                "Database connection string is missing or empty.")
+            .ValidateOnStart();
 
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                "Connection string 'DefaultConnection' is missing or empty.");
-        }
-
-        services.AddSingleton<ISqlConnectionFactory>(
-            new SqlConnectionFactory(connectionString));
+        services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 
         services.AddHealthChecks()
             .AddCheck<SqlServerHealthCheck>(
