@@ -72,6 +72,7 @@ public sealed class UserRepository : IUserRepository
                     user.Username,
                     user.Email,
                     user.PasswordHash,
+                    user.Role,
                     user.IsActive,
                     user.CreatedAt,
                     user.UpdatedAt

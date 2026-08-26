@@ -1,12 +1,12 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using JapaneseLearning.User.Api.Common.Errors;
 using JapaneseLearning.User.Api.Common.Responses;
 using JapaneseLearning.User.Application;
 using JapaneseLearning.User.Infrastructure;
-using System.Text;
+using JapaneseLearning.User.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using JapaneseLearning.User.Infrastructure.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +22,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddApplication();
+
 builder.Services.AddInfrastructure(
     builder.Configuration);
 
@@ -41,23 +42,58 @@ builder.Services
             new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-
                 ValidIssuer = jwtOptions.Issuer,
+
+                ValidateAudience = true,
                 ValidAudience = jwtOptions.Audience,
 
+                ValidateLifetime = true,
+
+                ValidateIssuerSigningKey = true,
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(
-                            jwtOptions.Secret))
+                            jwtOptions.Secret)),
+
+                ClockSkew = TimeSpan.Zero
             };
     });
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(
+        "Bearer",
+        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Enter JWT token"
+        });
+
+    options.AddSecurityRequirement(
+        new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference =
+                        new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
 
 var app = builder.Build();
 

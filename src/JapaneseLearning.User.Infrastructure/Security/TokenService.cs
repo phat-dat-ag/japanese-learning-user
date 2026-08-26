@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using JapaneseLearning.User.Application.Abstractions.Security;
+using JapaneseLearning.User.Domain.Users;
 using JapaneseLearning.User.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,12 +23,14 @@ public sealed class TokenService : ITokenService
     public TokenResult CreateTokens(
         Guid userId,
         string username,
-        string email)
+        string email,
+        UserRole role)
     {
         var accessToken = GenerateAccessToken(
             userId,
             username,
-            email);
+            email,
+            role);
 
         var refreshToken =
             GenerateRefreshToken();
@@ -55,7 +58,8 @@ public sealed class TokenService : ITokenService
     private string GenerateAccessToken(
         Guid userId,
         string username,
-        string email)
+        string email,
+        UserRole role)
     {
         var claims = new[]
         {
@@ -70,6 +74,10 @@ public sealed class TokenService : ITokenService
             new Claim(
                 JwtRegisteredClaimNames.Email,
                 email),
+
+            new Claim(
+                ClaimTypes.Role,
+                role.ToString()),
 
             new Claim(
                 JwtRegisteredClaimNames.Jti,

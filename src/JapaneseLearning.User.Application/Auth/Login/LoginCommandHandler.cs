@@ -66,7 +66,8 @@ public sealed class LoginCommandHandler
         var tokens = _tokenService.CreateTokens(
             user.Id,
             user.Username,
-            user.Email);
+            user.Email,
+            user.Role);
 
         var refreshToken = new RefreshToken(
             Guid.NewGuid(),

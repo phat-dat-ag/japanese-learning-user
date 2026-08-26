@@ -2,6 +2,7 @@ using JapaneseLearning.User.Application.Abstractions.Persistence;
 using JapaneseLearning.User.Application.Abstractions.Security;
 using JapaneseLearning.User.Application.Common.Exceptions;
 using UserEntity = JapaneseLearning.User.Domain.Entities.User;
+using JapaneseLearning.User.Domain.Users;
 using MediatR;
 
 namespace JapaneseLearning.User.Application.Auth.Register;
@@ -64,6 +65,7 @@ public sealed class RegisterCommandHandler
             username,
             email,
             passwordHash,
+            UserRole.User,
             true,
             now);
 
