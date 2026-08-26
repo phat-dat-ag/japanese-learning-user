@@ -15,4 +15,12 @@ public interface IUserRepository
     Task AddAsync(
         UserEntity user,
         CancellationToken cancellationToken);
+
+    Task<UserEntity?> GetByEmailAsync(
+        string email,
+        CancellationToken cancellationToken);
+
+    Task<UserEntity?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken);
 }

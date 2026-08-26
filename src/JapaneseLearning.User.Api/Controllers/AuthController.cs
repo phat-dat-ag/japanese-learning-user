@@ -1,4 +1,6 @@
 using JapaneseLearning.User.Application.Auth.Register;
+using JapaneseLearning.User.Application.Auth.Login;
+using JapaneseLearning.User.Application.Auth.Refresh;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,5 +34,41 @@ public sealed class AuthController : ControllerBase
         return StatusCode(
             StatusCodes.Status201Created,
             result);
+    }
+
+    [HttpPost("login")]
+    [ProducesResponseType(
+        typeof(LoginResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Login(
+        [FromBody] LoginCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            command,
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPost("refresh")]
+    [ProducesResponseType(
+    typeof(RefreshTokenResponse),
+    StatusCodes.Status200OK)]
+    [ProducesResponseType(
+    StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Refresh(
+        [FromBody] RefreshTokenCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            command,
+            cancellationToken);
+
+        return Ok(result);
     }
 }
