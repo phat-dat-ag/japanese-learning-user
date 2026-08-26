@@ -1,8 +1,12 @@
+using JapaneseLearning.User.Domain.Users;
+
 namespace JapaneseLearning.User.Domain.Entities;
 
 public sealed class User
 {
     public Guid Id { get; private set; }
+
+    public UserRole Role { get; private set; }
 
     public string Username { get; private set; } = null!;
 
@@ -25,6 +29,7 @@ public sealed class User
         string username,
         string email,
         string passwordHash,
+        UserRole role,
         bool isActive,
         DateTime createdAt)
     {
@@ -32,6 +37,7 @@ public sealed class User
         Username = username;
         Email = email;
         PasswordHash = passwordHash;
+        Role = role;
         IsActive = isActive;
         CreatedAt = createdAt;
         UpdatedAt = null;

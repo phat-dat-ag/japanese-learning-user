@@ -7,10 +7,6 @@ using JapaneseLearning.User.Application.Abstractions.Persistence;
 using JapaneseLearning.User.Application.Abstractions.Security;
 using JapaneseLearning.User.Infrastructure.Persistence.Repositories;
 using JapaneseLearning.User.Infrastructure.Security;
-using JapaneseLearning.User.Infrastructure.Configuration;
-using JapaneseLearning.User.Infrastructure.Persistence.Repositories;
-using JapaneseLearning.User.Application.Abstractions.Security;
-using JapaneseLearning.User.Application.Abstractions.Persistence;
 
 namespace JapaneseLearning.User.Infrastructure;
 
@@ -55,6 +51,8 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         services.AddSingleton<ITokenService, TokenService>();
+
+        services.AddScoped<ICurrentUser, CurrentUser>();
 
         services.AddHealthChecks()
             .AddCheck<SqlServerHealthCheck>(
