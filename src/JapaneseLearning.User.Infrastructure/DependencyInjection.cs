@@ -7,6 +7,10 @@ using JapaneseLearning.User.Application.Abstractions.Persistence;
 using JapaneseLearning.User.Application.Abstractions.Security;
 using JapaneseLearning.User.Infrastructure.Persistence.Repositories;
 using JapaneseLearning.User.Infrastructure.Security;
+using JapaneseLearning.User.Infrastructure.Configuration;
+using JapaneseLearning.User.Infrastructure.Persistence.Repositories;
+using JapaneseLearning.User.Application.Abstractions.Security;
+using JapaneseLearning.User.Application.Abstractions.Persistence;
 
 namespace JapaneseLearning.User.Infrastructure;
 
@@ -25,7 +29,32 @@ public static class DependencyInjection
                 "Database connection string is missing or empty.")
             .ValidateOnStart();
 
+        services
+            .AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.Secret),
+                "JWT secret is missing or empty.")
+            .Validate(
+                options => options.Secret.Length >= 32,
+                "JWT secret must be at least 32 characters.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.Issuer),
+                "JWT issuer is missing or empty.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.Audience),
+                "JWT audience is missing or empty.")
+            .ValidateOnStart();
+
         services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        services.AddSingleton<ITokenService, TokenService>();
 
         services.AddHealthChecks()
             .AddCheck<SqlServerHealthCheck>(

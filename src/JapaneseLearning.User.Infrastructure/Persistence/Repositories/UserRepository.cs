@@ -79,4 +79,40 @@ public sealed class UserRepository : IUserRepository
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<UserEntity?> GetByEmailAsync(
+        string email,
+        CancellationToken cancellationToken)
+    {
+        using var connection =
+            _connectionFactory.CreateConnection();
+
+        return await connection.QuerySingleOrDefaultAsync<UserEntity>(
+            new CommandDefinition(
+                "dbo.usp_Users_GetByEmail",
+                new
+                {
+                    Email = email
+                },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<UserEntity?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        using var connection =
+            _connectionFactory.CreateConnection();
+
+        return await connection.QuerySingleOrDefaultAsync<UserEntity>(
+            new CommandDefinition(
+                "dbo.usp_Users_GetById",
+                new
+                {
+                    Id = id
+                },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken));
+    }
 }
